@@ -1,8 +1,4 @@
-# SEMCS 
-
-_Simple Embedded Markdown Code Snippets_
-
-***
+# _Simple Embedded Markdown Code Snippets_
 
 A tool for specifying, generating and inserting Markdown code snippets in Markdown documents from source files. 
 
@@ -26,12 +22,12 @@ The full range of options are:
 
 ```
 snippet {
-    name: string,                           # required
-    file: string,                           # required
-    type: "function" | "variable",          # optional, defaults to "function"
+    name: string,                           	# required
+    file: string,                           	# required
+    type: "function" | "variable",          	# optional, defaults to "function"
 	language: string,                       # optional, defaults to "auto"
 	show_entire_function: true | false,     # optional, defaults to true
 	generate_link: true | false,            # optional, defaults to true
-    line_count: number | None,              # optional, defaults to None
+    line_count: number | None,              	# optional, defaults to None
 	search_between: [number, number] | None # optional, defaults to None
 }
