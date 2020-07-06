@@ -1,0 +1,13 @@
+{
+  "name": "Simple-Embedded-Markdown-Code-Snippets",
+  "version": "1.0.0",
+  "description": "A tool for specifying, generating and inserting Markdown code snippets in Markdown documents from source files.",
+  "main": "semcs.js",
+  "repository": "https://github.com/andersfischernielsen/Simple-Embedded-Markdown-Code-Snippets.git",
+  "author": "Anders Fischer-Nielsen <andersfischern@me.com>",
+  "license": "GNU GENERAL PUBLIC LICENSE 3.0",
+  "dependencies": {
+    "@types/node": "^14.0.14"
+  },
+  "devDependencies": {}
+}
