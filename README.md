@@ -41,3 +41,7 @@ snippet {
     "line_count": number | None,              	# optional, defaults to None
     "search_between": [number, number] | None 	# optional, defaults to None
 }
+```
+
+## Requirements
+* This tool depends on `node.js` being installed on your system.
