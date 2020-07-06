@@ -12,6 +12,19 @@ interface Arguments {
     sourceFiles: string[]
 }
 
+interface Snippet {
+    name: string,
+    file: string,
+    type: "function" | "variable",          	    // optional, defaults to "function"
+    language: string,                       	    // optional, defaults to "auto"
+    show_entire_function: true | false,     	    // optional, defaults to true
+    generate_link: true | false,            	    // optional, defaults to true
+    line_count: number | undefined,                 // optional, defaults to None
+    search_between: [number, number] | undefined,   // optional, defaults to None
+    starts_at: number,
+    ends_at: number
+}
+
 const processArguments = (processArgs: string[]) => {
     const relevantArgs = processArgs.slice(2)
     const filesIndex = relevantArgs.indexOf("--input")
@@ -58,8 +71,65 @@ const aggregateFiles = (files: string[], fileTypes: string[]): string[] => {
     return reduced
 }
 
-const replaceSnippets = (file: string) => {
-    fs.readFileSync(file)
+const findSnippets = (file: string) => {
+    const regex = RegExp("snippet\\s*{")
+    const contents = fs.readFileSync(file)
+    const lines = contents.toString().split("\n")
+    //TODO: Make this functional instead of these nasty stateful loops
+    let snippets: Snippet[] = []
+    let isMatching = false
+    let buildingSnippet = ""
+    let count = 0
+    for (let l of lines) {
+        const matchStart = regex.test(l);
+        const matchEnd = l.trim().startsWith("}")
+        if (matchStart) {
+            isMatching = true;
+            l = l.replace("snippet {", `{"starts_at": "${count}",`);
+        }
+        if (isMatching) {
+            if (matchEnd) { l = l.replace("}", `, "ends_at": "${count}" }`) }
+            buildingSnippet += l
+        }
+        if (matchEnd) {
+            isMatching = false
+            const snippet = JSON.parse(buildingSnippet) as Snippet
+            snippets.push(snippet)
+            buildingSnippet = ""
+        }
+        count += 1
+    }
+    return snippets
+}
+
+const replaceFileContents = (file: string, snippets: Snippet[], source: string[]) => {
+    const contents = fs.readFileSync(file)
+    let lines = contents.toString().split("\n")
+
+    //TODO: Implement extraction of code from source files. 
+
+    for (const snippet of snippets.reverse()) {
+        const start = (+snippet.starts_at)
+        const end = (+snippet.ends_at)
+        lines[start] = "``` " + (snippet.language && snippet.language !== "auto" ? snippet.language : "")
+        lines[end] = "```"
+
+        for (let line = start + 1; line <= end - 1; line++) {
+            delete lines[line]
+        }
+    }
+
+    return lines.join("\n")
+}
+
+const replaceSnippets = (file: string, source: string[]) => {
+    try {
+        const snippets = findSnippets(file)
+        const replaced = replaceFileContents(file, snippets, source);
+        fs.writeFileSync(`${file}.out`, replaced)
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 const processFiles = (args: Arguments) => {
@@ -71,8 +141,7 @@ const processFiles = (args: Arguments) => {
     const source = aggregateFiles(sourceDirectories, sourceFileTypes).concat(sourceFiles)
     const files = args.files === "All" ? aggregateFiles(["."], [".md"]) : args.files
 
-    console.log(files)
-    console.log(source)
+    files.forEach(f => replaceSnippets(f, source))
 }
 
 const args = processArguments(process.argv);

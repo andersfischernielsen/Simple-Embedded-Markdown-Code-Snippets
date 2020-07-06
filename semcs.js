@@ -53,8 +53,62 @@ const aggregateFiles = (files, fileTypes) => {
     const reduced = files.reduce(aggregate, []);
     return reduced;
 };
-const replaceSnippets = (file) => {
-    fs.readFileSync(file);
+const findSnippets = (file) => {
+    const regex = RegExp("snippet\\s*{");
+    const contents = fs.readFileSync(file);
+    const lines = contents.toString().split("\n");
+    //TODO: Make this functional instead of these nasty stateful loops
+    let snippets = [];
+    let isMatching = false;
+    let buildingSnippet = "";
+    let count = 0;
+    for (let l of lines) {
+        const matchStart = regex.test(l);
+        const matchEnd = l.trim().startsWith("}");
+        if (matchStart) {
+            isMatching = true;
+            l = l.replace("snippet {", `{"starts_at": "${count}",`);
+        }
+        if (isMatching) {
+            if (matchEnd) {
+                l = l.replace("}", `, "ends_at": "${count}" }`);
+            }
+            buildingSnippet += l;
+        }
+        if (matchEnd) {
+            isMatching = false;
+            const snippet = JSON.parse(buildingSnippet);
+            snippets.push(snippet);
+            buildingSnippet = "";
+        }
+        count += 1;
+    }
+    return snippets;
+};
+const replaceFileContents = (file, snippets, source) => {
+    const contents = fs.readFileSync(file);
+    let lines = contents.toString().split("\n");
+    //TODO: Implement extraction of code from source files. 
+    for (const snippet of snippets.reverse()) {
+        const start = (+snippet.starts_at);
+        const end = (+snippet.ends_at);
+        lines[start] = "``` " + (snippet.language && snippet.language !== "auto" ? snippet.language : "");
+        lines[end] = "```";
+        for (let line = start + 1; line <= end - 1; line++) {
+            delete lines[line];
+        }
+    }
+    return lines.join("\n");
+};
+const replaceSnippets = (file, source) => {
+    try {
+        const snippets = findSnippets(file);
+        const replaced = replaceFileContents(file, snippets, source);
+        fs.writeFileSync(`${file}.out`, replaced);
+    }
+    catch (e) {
+        console.log(e);
+    }
 };
 const processFiles = (args) => {
     if (!args.sourceFiles.every(exists))
@@ -66,8 +120,7 @@ const processFiles = (args) => {
     const sourceFileTypes = [".cs", ".ts", ".js", ".cpp", ".c", ".java"];
     const source = aggregateFiles(sourceDirectories, sourceFileTypes).concat(sourceFiles);
     const files = args.files === "All" ? aggregateFiles(["."], [".md"]) : args.files;
-    console.log(files);
-    console.log(source);
+    files.forEach(f => replaceSnippets(f, source));
 };
 const args = processArguments(process.argv);
 processFiles(args);
