@@ -1,7 +1,5 @@
 # SEMCS 
 
-***
-
 _Simple Embedded Markdown Code Snippets_
 
 ***
