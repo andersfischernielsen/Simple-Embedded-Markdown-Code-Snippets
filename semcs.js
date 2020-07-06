@@ -93,7 +93,7 @@ const replaceFileContents = (file, snippets, source) => {
         const start = (+snippet.starts_at);
         const end = (+snippet.ends_at);
         lines[start] = "``` " + (snippet.language && snippet.language !== "auto" ? snippet.language : "");
-        lines[end] = "```";
+        lines[end] = snippet.generate_link ? `\`\`\`\n(From [\`${snippet.file}\`](${snippet.file}))` : "```";
         for (let line = start + 1; line <= end - 1; line++) {
             delete lines[line];
         }
