@@ -3,5 +3,6 @@
 A snippet can be seen below from `test_src/test.ts`. 
 
 snippet {
-    
+    name: "test",
+    file: "test.ts"
 }
