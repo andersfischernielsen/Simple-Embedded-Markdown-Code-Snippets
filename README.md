@@ -1,4 +1,4 @@
-# _Simple Embedded Markdown Code Snippets_
+# SEMCS: _Simple Embedded Markdown Code Snippets_
 
 A tool for specifying, generating and inserting Markdown code snippets in Markdown documents from source files. 
 
