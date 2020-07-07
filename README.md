@@ -44,3 +44,10 @@ snippet {
 
 ## Requirements
 * This tool depends on `node.js` being installed on your system.
+
+## Analyzers 
+The analyzers for finding functions for snippet are implemented in `/analysis`, with an extremely basic "analyzer" provided as a fallback. 
+
+These analyzers inherit the `Analyzer` interface found in [`analyzer.ts`](analysis/analyzer.ts) and are added to [`knownLanguages.ts`](analysis/knownLanguages.ts) when implemented. 
+
+When an analyzer has been implemented and added to the known analyzers, it will be used when a language type for that analyzer is specified in the `language` field of a snippet. 
