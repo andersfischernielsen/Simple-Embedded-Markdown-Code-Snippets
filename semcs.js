@@ -10,6 +10,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const knownLanguages_1 = require("./analysis/knownLanguages");
 const processArguments = (processArgs) => {
     const relevantArgs = processArgs.slice(2);
     const filesIndex = relevantArgs.indexOf("--input");
@@ -88,7 +89,6 @@ const findSnippets = (file) => {
 const replaceFileContents = (file, snippets, source) => {
     const contents = fs.readFileSync(file);
     let lines = contents.toString().split("\n");
-    //TODO: Implement extraction of code from source files. 
     for (const snippet of snippets.reverse()) {
         const start = (+snippet.starts_at);
         const end = (+snippet.ends_at);
@@ -97,6 +97,14 @@ const replaceFileContents = (file, snippets, source) => {
         for (let line = start + 1; line <= end - 1; line++) {
             delete lines[line];
         }
+        const analyzer = snippet.language && knownLanguages_1.knownLanguages[snippet.language]
+            ? knownLanguages_1.knownLanguages[snippet.language]
+            : knownLanguages_1.knownLanguages["unknown"];
+        const sourceFile = source.find(s => s === snippet.file);
+        if (!sourceFile)
+            throw Error(`The source file declared in the snippet starting at ${snippet.starts_at} in ${file} has not been provided.`);
+        const result = analyzer.findInFile(snippet.name, sourceFile);
+        lines[start + 1] = result;
     }
     return lines.join("\n");
 };

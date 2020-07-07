@@ -2,6 +2,8 @@
 
 import * as fs from "fs"
 import * as path from "path"
+import { knownLanguages } from "./analysis/knownLanguages"
+import { Analyzer } from "./analysis/analyzer"
 
 type All = "All"
 type Some = string[]
@@ -106,8 +108,6 @@ const replaceFileContents = (file: string, snippets: Snippet[], source: string[]
     const contents = fs.readFileSync(file)
     let lines = contents.toString().split("\n")
 
-    //TODO: Implement extraction of code from source files. 
-
     for (const snippet of snippets.reverse()) {
         const start = (+snippet.starts_at)
         const end = (+snippet.ends_at)
@@ -117,6 +117,14 @@ const replaceFileContents = (file: string, snippets: Snippet[], source: string[]
         for (let line = start + 1; line <= end - 1; line++) {
             delete lines[line]
         }
+
+        const analyzer = snippet.language && knownLanguages[snippet.language]
+            ? knownLanguages[snippet.language]
+            : knownLanguages["unknown"]
+        const sourceFile = source.find(s => s === snippet.file)
+        if (!sourceFile) throw Error(`The source file declared in the snippet starting at ${snippet.starts_at} in ${file} has not been provided.`)
+        const result = analyzer.findInFile(snippet.name, sourceFile)
+        lines[start + 1] = result
     }
 
     return lines.join("\n")

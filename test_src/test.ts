@@ -3,5 +3,11 @@ function test() {
 }
 
 function test2() {
-    console.log("Hello Again Snippets!")
+    const test = () => {
+        console.log("Hello Again Snippets!")
+    }
 }
+
+const test3 = () => ""
+
+const test4 = ""

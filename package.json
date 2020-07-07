@@ -6,7 +6,9 @@
   "repository": "https://github.com/andersfischernielsen/Simple-Embedded-Markdown-Code-Snippets.git",
   "author": "Anders Fischer-Nielsen <andersfischern@me.com>",
   "license": "GNU GENERAL PUBLIC LICENSE 3.0",
-  "dependencies": {},
+  "dependencies": {
+    "typescript": "^3.9.6"
+  },
   "devDependencies": {
     "@types/node": "^14.0.14"
   }
