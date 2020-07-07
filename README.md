@@ -32,14 +32,13 @@ The full range of options are:
 
 ```
 snippet {
-    "name": string,                           	# required
-    "file": string,                           	# required
-    "type": "function" | "variable",          	# optional, defaults to "function"
-    "language": string,                       	# optional, defaults to "auto"
-    "show_entire_function": true | false,     	# optional, defaults to true
-    "generate_link": true | false,            	# optional, defaults to true
-    "line_count": number | None,              	# optional, defaults to None
-    "search_between": [number, number] | None 	# optional, defaults to None
+    "name": string,                                   # required
+    "file": string,                                   # required
+    "language": string,                               # optional, defaults to "unknown"
+    "generate_link": true | false,                    # optional, defaults to true
+    "show_entire_function": true | false,             # optional, defaults to true
+    "line_count": number | undefined,                 # optional, defaults to undefined
+    "search_between": [number, number] | undefined    # optional, defaults to undefined
 }
 ```
 
