@@ -12,17 +12,14 @@ class DefaultAnalyzer {
         let count = 0;
         let result = [];
         const regex = RegExp(`(.*)(${toFind})(.*)`);
-        console.log(between);
         let parenthesesCount = 0;
         let lineCount = lines === "entireFunction" ? 0 : lines;
         let found = false;
         for (const line of file) {
-            console.log(count);
             if (between && count < between[0]) {
                 count++;
                 continue;
             }
-            console.log("run");
             if (lines !== "entireFunction") {
                 if (regex.test(line)) {
                     found = true;
@@ -52,7 +49,7 @@ class DefaultAnalyzer {
                 break;
             count++;
         }
-        return result.join("\n");
+        return result.length === 0 ? "No matching results" : result.join("\n");
     }
 }
 exports.DefaultAnalyzer = DefaultAnalyzer;

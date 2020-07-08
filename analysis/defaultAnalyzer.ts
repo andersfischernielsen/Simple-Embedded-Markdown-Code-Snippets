@@ -9,12 +9,10 @@ export class DefaultAnalyzer implements Analyzer {
         let count = 0
         let result = []
         const regex = RegExp(`(.*)(${toFind})(.*)`)
-        console.log(between)
         let parenthesesCount = 0
         let lineCount = lines === "entireFunction" ? 0 : lines
         let found = false
         for (const line of file) {
-            console.log(count)
             if (between && count < between[0]) {
                 count++
                 continue
@@ -45,6 +43,6 @@ export class DefaultAnalyzer implements Analyzer {
             count++
         }
 
-        return result.join("\n")
+        return result.length === 0 ? "No matching results" : result.join("\n")
     }
 }
