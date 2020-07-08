@@ -1,9 +1,6 @@
-#!/usr/bin/env node
-
 import * as fs from "fs"
 import * as path from "path"
 import { knownLanguages } from "./analysis/knownLanguages"
-import { Analyzer } from "./analysis/analyzer"
 
 type All = "All"
 type Some = string[]
