@@ -11,6 +11,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const knownLanguages_1 = require("./analysis/knownLanguages");
+const populateSnippet = (s) => {
+    const cast = s;
+    if (!cast)
+        throw Error(`Snippet could not be parsed: \n${s.toString()}`);
+    if (cast.generate_link === undefined)
+        cast.generate_link = true;
+    if (cast.show_entire_function === undefined && !cast.line_count)
+        cast.show_entire_function = true;
+    return cast;
+};
 const processArguments = (processArgs) => {
     const relevantArgs = processArgs.slice(2);
     const filesIndex = relevantArgs.indexOf("--input");
@@ -78,7 +88,7 @@ const findSnippets = (file) => {
         }
         if (matchEnd) {
             isMatching = false;
-            const snippet = JSON.parse(buildingSnippet);
+            const snippet = populateSnippet(JSON.parse(buildingSnippet));
             snippets.push(snippet);
             buildingSnippet = "";
         }
@@ -103,7 +113,8 @@ const replaceFileContents = (file, snippets, source) => {
         const sourceFile = source.find(s => s === snippet.file);
         if (!sourceFile)
             throw Error(`The source file declared in the snippet starting at ${snippet.starts_at} in ${file} has not been provided.`);
-        const result = analyzer.findInFile(snippet.name, sourceFile);
+        const lineCount = !snippet.show_entire_function && snippet.line_count !== undefined ? +snippet.line_count : "entireFunction";
+        const result = analyzer.findInFile(snippet.name, sourceFile, lineCount);
         lines[start + 1] = result;
     }
     return lines.join("\n");
@@ -121,13 +132,13 @@ const replaceSnippets = (file, source) => {
 const processFiles = (args) => {
     if (!args.sourceFiles.every(exists))
         throw new Error("One or more source files do not exist.");
-    if (!args.sourceFiles.every(exists))
-        throw new Error("One or more source files do not exist.");
     const sourceDirectories = args.sourceFiles.filter(isDirectory);
     const sourceFiles = args.sourceFiles.filter(isFile);
     const sourceFileTypes = [".cs", ".ts", ".js", ".cpp", ".c", ".java"];
     const source = aggregateFiles(sourceDirectories, sourceFileTypes).concat(sourceFiles);
     const files = args.files === "All" ? aggregateFiles(["."], [".md"]) : args.files;
+    if (!files.every(exists))
+        throw new Error("One or more input files do not exist.");
     files.forEach(f => replaceSnippets(f, source));
 };
 const args = processArguments(process.argv);

@@ -21,9 +21,16 @@ interface Snippet {
     generate_link: true | false,                    // optional, defaults to true
     show_entire_function: true | false,             // optional, defaults to true
     line_count: number | undefined,                 // optional, defaults to undefined
-    search_between: [number, number] | undefined,   // optional, defaults to undefined
     starts_at: number,
     ends_at: number
+}
+
+const populateSnippet = (s: any) => {
+    const cast = s as Snippet
+    if (!cast) throw Error(`Snippet could not be parsed: \n${s.toString()}`)
+    if (cast.generate_link === undefined) cast.generate_link = true
+    if (cast.show_entire_function === undefined && !cast.line_count) cast.show_entire_function = true
+    return cast
 }
 
 const processArguments = (processArgs: string[]) => {
@@ -94,7 +101,7 @@ const findSnippets = (file: string) => {
         }
         if (matchEnd) {
             isMatching = false
-            const snippet = JSON.parse(buildingSnippet) as Snippet
+            const snippet = populateSnippet(JSON.parse(buildingSnippet) as Snippet)
             snippets.push(snippet)
             buildingSnippet = ""
         }
@@ -122,7 +129,8 @@ const replaceFileContents = (file: string, snippets: Snippet[], source: string[]
             : knownLanguages["unknown"]
         const sourceFile = source.find(s => s === snippet.file)
         if (!sourceFile) throw Error(`The source file declared in the snippet starting at ${snippet.starts_at} in ${file} has not been provided.`)
-        const result = analyzer.findInFile(snippet.name, sourceFile)
+        const lineCount = !snippet.show_entire_function && snippet.line_count !== undefined ? +snippet.line_count : "entireFunction"
+        const result = analyzer.findInFile(snippet.name, sourceFile, lineCount)
         lines[start + 1] = result
     }
 
@@ -141,13 +149,12 @@ const replaceSnippets = (file: string, source: string[]) => {
 
 const processFiles = (args: Arguments) => {
     if (!args.sourceFiles.every(exists)) throw new Error("One or more source files do not exist.")
-    if (!args.sourceFiles.every(exists)) throw new Error("One or more source files do not exist.")
     const sourceDirectories = args.sourceFiles.filter(isDirectory)
     const sourceFiles = args.sourceFiles.filter(isFile)
     const sourceFileTypes = [".cs", ".ts", ".js", ".cpp", ".c", ".java"]
     const source = aggregateFiles(sourceDirectories, sourceFileTypes).concat(sourceFiles)
     const files = args.files === "All" ? aggregateFiles(["."], [".md"]) : args.files
-
+    if (!files.every(exists)) throw new Error("One or more input files do not exist.")
     files.forEach(f => replaceSnippets(f, source))
 }
 

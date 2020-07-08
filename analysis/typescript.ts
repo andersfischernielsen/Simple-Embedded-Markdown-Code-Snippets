@@ -2,7 +2,7 @@ import { Analyzer } from "./analyzer"
 import ts from "typescript"
 
 export class TypeScriptAnalyzer implements Analyzer {
-    findInFile(toFind: string, inFile: string) {
+    findInFile(toFind: string, inFile: string, lines: "entireFunction" | number) {
         const file = ts.sys.readFile(inFile)
         if (!file) throw Error("Could not parse input file as a valid TypeScript file.")
         const parsed = ts.createSourceFile("temp.ts", file, ts.ScriptTarget.ES2016);
@@ -13,6 +13,8 @@ export class TypeScriptAnalyzer implements Analyzer {
                     && result.name
                     && result.name.escapedText === toFind
             }).map(r => r.getText(parsed))
-        return results.length > 0 ? results[0] : "No matching results"
+        const result = results.length > 0 ? results[0] : "No matching results"
+        if (lines !== "entireFunction") return result.split("\n").slice(0, lines).join("\n")
+        return result
     }
 }
