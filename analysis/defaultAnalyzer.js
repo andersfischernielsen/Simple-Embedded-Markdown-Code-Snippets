@@ -5,16 +5,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 class DefaultAnalyzer {
-    findInFile(toFind, inFile, lines) {
+    findInFile(toFind, inFile, lines, between) {
         const file = fs_1.default.readFileSync(inFile).toString().split("\n");
         if (!file)
             throw Error(`Could not parse ${inFile} as a valid source file.`);
+        let count = 0;
         let result = [];
         const regex = RegExp(`(.*)(${toFind})(.*)`);
-        if (lines !== "entireFunction") {
-            let found = false;
-            let lineCount = lines;
-            for (const line of file) {
+        console.log(between);
+        let parenthesesCount = 0;
+        let lineCount = lines === "entireFunction" ? 0 : lines;
+        let found = false;
+        for (const line of file) {
+            console.log(count);
+            if (between && count < between[0]) {
+                count++;
+                continue;
+            }
+            console.log("run");
+            if (lines !== "entireFunction") {
                 if (regex.test(line)) {
                     found = true;
                 }
@@ -25,23 +34,23 @@ class DefaultAnalyzer {
                 if (found && lineCount === 0)
                     break;
             }
-        }
-        else {
-            let count = 0;
-            for (const line of file) {
+            else {
                 if (regex.test(line)) {
-                    count++;
+                    parenthesesCount++;
                 }
-                if (count > 0)
+                if (parenthesesCount > 0)
                     result.push(line);
-                if (line.match(".*{.*") && count > 0)
-                    count++;
-                if (line.match(".*}.*") && count > 0)
-                    count--;
-                if (line.match(".*}.*") && count === 1) {
+                if (line.match(".*{.*") && parenthesesCount > 0)
+                    parenthesesCount++;
+                if (line.match(".*}.*") && parenthesesCount > 0)
+                    parenthesesCount--;
+                if (line.match(".*}.*") && parenthesesCount === 1) {
                     break;
                 }
             }
+            if (between && count > between[1])
+                break;
+            count++;
         }
         return result.join("\n");
     }

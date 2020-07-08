@@ -2,9 +2,10 @@ import { Analyzer } from "./analyzer"
 import ts from "typescript"
 
 export class TypeScriptAnalyzer implements Analyzer {
-    findInFile(toFind: string, inFile: string, lines: "entireFunction" | number) {
-        const file = ts.sys.readFile(inFile)
-        if (!file) throw Error("Could not parse input file as a valid TypeScript file.")
+    findInFile(toFind: string, inFile: string, lines: "entireFunction" | number, between: [number, number] | undefined) {
+        const entireFile = ts.sys.readFile(inFile)
+        if (!entireFile) throw Error("Could not parse input file as a valid TypeScript file.")
+        const file = between ? entireFile.split("\n").slice(between[0], between[1]).join("\n") : entireFile
         const parsed = ts.createSourceFile("temp.ts", file, ts.ScriptTarget.ES2016);
         const results = parsed.statements
             .filter(s => s.kind === ts.SyntaxKind.FunctionDeclaration)

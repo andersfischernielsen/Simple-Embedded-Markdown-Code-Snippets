@@ -9,5 +9,5 @@ snippet {
 Another snippet can be seen below. 
 
 snippet {
-    "name": "test2", "file": "test_src/test.ts", "line_count": 5, "generate_link": false
+    "name": "test2", "file": "test_src/test.ts", "line_count": 5, "generate_link": false, "search_between": [4, 10]
 }

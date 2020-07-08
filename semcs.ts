@@ -21,6 +21,7 @@ interface Snippet {
     generate_link: true | false,                    // optional, defaults to true
     show_entire_function: true | false,             // optional, defaults to true
     line_count: number | undefined,                 // optional, defaults to undefined
+    search_between: [number, number] | undefined    // optional, defaults to undefined
     starts_at: number,
     ends_at: number
 }
@@ -130,7 +131,7 @@ const replaceFileContents = (file: string, snippets: Snippet[], source: string[]
         const sourceFile = source.find(s => s === snippet.file)
         if (!sourceFile) throw Error(`The source file declared in the snippet starting at ${snippet.starts_at} in ${file} has not been provided.`)
         const lineCount = !snippet.show_entire_function && snippet.line_count !== undefined ? +snippet.line_count : "entireFunction"
-        const result = analyzer.findInFile(snippet.name, sourceFile, lineCount)
+        const result = analyzer.findInFile(snippet.name, sourceFile, lineCount, snippet.search_between)
         lines[start + 1] = result
     }
 

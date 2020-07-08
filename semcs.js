@@ -114,7 +114,7 @@ const replaceFileContents = (file, snippets, source) => {
         if (!sourceFile)
             throw Error(`The source file declared in the snippet starting at ${snippet.starts_at} in ${file} has not been provided.`);
         const lineCount = !snippet.show_entire_function && snippet.line_count !== undefined ? +snippet.line_count : "entireFunction";
-        const result = analyzer.findInFile(snippet.name, sourceFile, lineCount);
+        const result = analyzer.findInFile(snippet.name, sourceFile, lineCount, snippet.search_between);
         lines[start + 1] = result;
     }
     return lines.join("\n");
