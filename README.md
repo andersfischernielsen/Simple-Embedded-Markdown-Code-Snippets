@@ -6,6 +6,8 @@ This tool lets you specify code snippets based on function names from source fil
 
 Snippets are defined using a small JSON DSL containing the references to the source files necessary for generating the snippet. Snippets can be customized to your liking, but come with sane defaults if you can't be bothered to customize them. 
 
+See [`test.md`](test.md) for an example of the formatting of input files and [`test.out.md`](test.out.md) for the resulting output file.  
+
 ## Usage
 Run 
 ```
